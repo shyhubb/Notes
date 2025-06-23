@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -250,29 +251,43 @@
             color: #f39c12;
         }
 
+        .url-status {
+            background: #e8f5e8;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .url-status.error {
+            background: #ffeaea;
+            border-left-color: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .sidebar {
                 display: none;
             }
-            
+
             .two-column {
                 grid-template-columns: 1fr;
             }
-            
+
             .config-row {
                 flex-direction: column;
             }
-            
+
             .config-row input {
                 min-width: 100%;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -281,10 +296,14 @@
         </div>
 
         <div class="config-section">
+            <div class="url-status" id="urlStatus">
+                🌐 Current API URL: <strong>https://notes-1-qj5g.onrender.com</strong>
+            </div>
             <div class="config-row">
-                <input type="text" id="baseUrl" placeholder="Base URL (e.g., http://localhost:8080)" value="http://localhost:8080">
+                <input type="text" id="baseUrl" placeholder="Base URL" value="https://notes-1-qj5g.onrender.com">
                 <input type="text" id="authToken" placeholder="Authorization Token (Bearer token if needed)">
                 <button class="btn" onclick="saveConfig()">💾 Save Config</button>
+                <button class="btn" onclick="testConnection()">🔗 Test Connection</button>
             </div>
         </div>
 
@@ -308,7 +327,7 @@
                 <!-- Authentication Section -->
                 <div id="auth" class="section active">
                     <h2>🔐 Authentication</h2>
-                    
+
                     <div class="two-column">
                         <!-- Login -->
                         <div class="api-section">
@@ -361,7 +380,7 @@
                 <!-- Notes Section -->
                 <div id="notes" class="section">
                     <h2>📝 Notes Management</h2>
-                    
+
                     <div class="two-column">
                         <!-- Create Note -->
                         <div class="api-section">
@@ -453,7 +472,7 @@
                 <!-- Profile Section -->
                 <div id="profile" class="section">
                     <h2>👤 Profile Management</h2>
-                    
+
                     <div class="two-column">
                         <!-- View Profile -->
                         <div class="api-section">
@@ -486,7 +505,7 @@
                 <!-- Account Section -->
                 <div id="account" class="section">
                     <h2>⚙️ Account Settings</h2>
-                    
+
                     <div class="two-column">
                         <!-- Change Password -->
                         <div class="api-section">
@@ -525,44 +544,93 @@
     </div>
 
     <script>
-        // Configuration
+        // Configuration - Updated for Render deployment
         let config = {
-            baseUrl: 'http://localhost:8080',
+            baseUrl: 'https://notes-1-qj5g.onrender.com',
             authToken: ''
         };
 
         // Load saved configuration
         function loadConfig() {
-            const saved = localStorage.getItem('apiConfig');
+            const saved = sessionStorage.getItem('apiConfig');
             if (saved) {
-                config = JSON.parse(saved);
+                const savedConfig = JSON.parse(saved);
+                // Keep the Render URL as default but allow override
+                config.baseUrl = savedConfig.baseUrl || 'https://notes-1-qj5g.onrender.com';
+                config.authToken = savedConfig.authToken || '';
                 document.getElementById('baseUrl').value = config.baseUrl;
                 document.getElementById('authToken').value = config.authToken;
             }
+            updateUrlStatus();
         }
 
         // Save configuration
         function saveConfig() {
             config.baseUrl = document.getElementById('baseUrl').value;
             config.authToken = document.getElementById('authToken').value;
-            localStorage.setItem('apiConfig', JSON.stringify(config));
+            sessionStorage.setItem('apiConfig', JSON.stringify(config));
+            updateUrlStatus();
             alert('Configuration saved!');
+        }
+
+        // Update URL status display
+        function updateUrlStatus() {
+            const statusEl = document.getElementById('urlStatus');
+            const isRender = config.baseUrl.includes('onrender.com');
+            const isLocal = config.baseUrl.includes('localhost');
+
+            if (isRender) {
+                statusEl.innerHTML = `🌐 Connected to Render: <strong>${config.baseUrl}</strong>`;
+                statusEl.className = 'url-status';
+            } else if (isLocal) {
+                statusEl.innerHTML = `🏠 Connected to Local: <strong>${config.baseUrl}</strong>`;
+                statusEl.className = 'url-status';
+            } else {
+                statusEl.innerHTML = `🔗 Custom URL: <strong>${config.baseUrl}</strong>`;
+                statusEl.className = 'url-status';
+            }
+        }
+
+        // Test connection to API
+        async function testConnection() {
+            const statusEl = document.getElementById('urlStatus');
+            statusEl.innerHTML = '🔄 Testing connection...';
+
+            try {
+                const response = await fetch(`${config.baseUrl}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    statusEl.innerHTML = `✅ Connection successful: <strong>${config.baseUrl}</strong>`;
+                    statusEl.className = 'url-status';
+                } else {
+                    statusEl.innerHTML = `⚠️ Server responded with status ${response.status}: <strong>${config.baseUrl}</strong>`;
+                    statusEl.className = 'url-status error';
+                }
+            } catch (error) {
+                statusEl.innerHTML = `❌ Connection failed: <strong>${config.baseUrl}</strong> - ${error.message}`;
+                statusEl.className = 'url-status error';
+            }
         }
 
         // Show section
         function showSection(sectionName) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-            
+
             document.getElementById(sectionName).classList.add('active');
             document.querySelector(`.sidebar-item[onclick="showSection('${sectionName}')"]`).classList.add('active');
         }
 
-        // Generic API call function
+        // Generic API call function with better error handling for CORS and network issues
         async function makeApiCall(endpoint, method = 'GET', body = null, loadingId, responseId) {
             const loadingEl = document.getElementById(loadingId);
             const responseEl = document.getElementById(responseId);
-            
+
             loadingEl.style.display = 'block';
             responseEl.textContent = '';
 
@@ -578,12 +646,13 @@
                 const response = await fetch(`${config.baseUrl}${endpoint}`, {
                     method: method,
                     headers: headers,
-                    body: body ? JSON.stringify(body) : null
+                    body: body ? JSON.stringify(body) : null,
+                    mode: 'cors' // Explicitly set CORS mode
                 });
 
                 const responseText = await response.text();
                 let responseData;
-                
+
                 try {
                     responseData = JSON.parse(responseText);
                 } catch {
@@ -591,12 +660,23 @@
                 }
 
                 loadingEl.style.display = 'none';
-                responseEl.textContent = `Status: ${response.status} ${response.statusText}\n\n${JSON.stringify(responseData, null, 2)}`;
-                
+
+                // Enhanced response display
+                const statusColor = response.ok ? '#27ae60' : '#e74c3c';
+                responseEl.innerHTML = `<span style="color: ${statusColor};">Status: ${response.status} ${response.statusText}</span>\n\n${JSON.stringify(responseData, null, 2)}`;
+
                 return responseData;
             } catch (error) {
                 loadingEl.style.display = 'none';
-                responseEl.textContent = `Error: ${error.message}`;
+
+                let errorMsg = `Error: ${error.message}`;
+                if (error.message.includes('CORS')) {
+                    errorMsg += '\n\nNote: This might be a CORS issue. Make sure your API server allows cross-origin requests.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMsg += '\n\nNote: Unable to connect to server. Please check if the API is running and accessible.';
+                }
+
+                responseEl.innerHTML = `<span style="color: #e74c3c;">${errorMsg}</span>`;
                 console.error('API Error:', error);
             }
         }
@@ -605,7 +685,7 @@
         async function login() {
             const account = document.getElementById('loginAccount').value;
             const password = document.getElementById('loginPassword').value;
-            
+
             if (!account || !password) {
                 alert('Please fill in both account and password');
                 return;
@@ -625,7 +705,7 @@
             const account = document.getElementById('registerAccount').value;
             const password = document.getElementById('registerPassword').value;
             const repassword = document.getElementById('registerConfirmPassword').value;
-            
+
             if (!name || !account || !password || !repassword) {
                 alert('Please fill in all fields');
                 return;
@@ -643,7 +723,7 @@
         function createNote() {
             const title = document.getElementById('createTitle').value;
             const content = document.getElementById('createContent').value;
-            
+
             if (!title || !content) {
                 alert('Please fill in both title and content');
                 return;
@@ -656,7 +736,7 @@
             const id = document.getElementById('updateId').value;
             const title = document.getElementById('updateTitle').value;
             const content = document.getElementById('updateContent').value;
-            
+
             if (!id) {
                 alert('Please enter note ID');
                 return;
@@ -671,7 +751,7 @@
 
         function deleteNote() {
             const id = document.getElementById('deleteId').value;
-            
+
             if (!id) {
                 alert('Please enter note ID');
                 return;
@@ -684,7 +764,7 @@
 
         function viewNoteDetails() {
             const id = document.getElementById('viewDetailId').value;
-            
+
             if (!id) {
                 alert('Please enter note ID');
                 return;
@@ -704,7 +784,7 @@
 
         function changeName() {
             const newName = document.getElementById('newName').value;
-            
+
             if (!newName) {
                 alert('Please enter new name');
                 return;
@@ -717,7 +797,7 @@
         function changePassword() {
             const changePass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
-            
+
             if (!changePass || !confirmPass) {
                 alert('Please fill in both password fields');
                 return;
@@ -738,4 +818,5 @@
         loadConfig();
     </script>
 </body>
+
 </html>
