@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note API Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .config-row input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .config-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            background: #2c3e50;
+            color: white;
+            padding: 0;
+        }
+
+        .sidebar-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #34495e;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-item:hover {
+            background: #34495e;
+        }
+
+        .sidebar-item.active {
+            background: #3498db;
+            border-left: 4px solid #fff;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .api-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .api-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .response-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2c3e50;
+            border-radius: 8px;
+            color: #ecf0f1;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .endpoint-info {
+            background: #e8f4fd;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+
+        .method {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .method.get {
+            color: #27ae60;
+        }
+
+        .method.post {
+            color: #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-row {
+                flex-direction: column;
+            }
+            
+            .config-row input {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Note API Dashboard</h1>
+            <p>Test your Spring Boot Note API endpoints easily</p>
+        </div>
+
+        <div class="config-section">
+            <div class="config-row">
+                <input type="text" id="baseUrl" placeholder="Base URL (e.g., http://localhost:8080)" value="http://localhost:8080">
+                <input type="text" id="authToken" placeholder="Authorization Token (Bearer token if needed)">
+                <button class="btn" onclick="saveConfig()">💾 Save Config</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-item active" onclick="showSection('auth')">
+                    <i>🔐</i> Authentication
+                </div>
+                <div class="sidebar-item" onclick="showSection('notes')">
+                    <i>📝</i> Notes Management
+                </div>
+                <div class="sidebar-item" onclick="showSection('profile')">
+                    <i>👤</i> Profile Management
+                </div>
+                <div class="sidebar-item" onclick="showSection('account')">
+                    <i>⚙️</i> Account Settings
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Authentication Section -->
+                <div id="auth" class="section active">
+                    <h2>🔐 Authentication</h2>
+                    
+                    <div class="two-column">
+                        <!-- Login -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /auth/login
+                            </div>
+                            <h3>Login</h3>
+                            <div class="form-group">
+                                <label>Account:</label>
+                                <input type="text" id="loginAccount" placeholder="Enter account">
+                            </div>
+                            <div class="form-group">
+                                <label>Password:</label>
+                                <input type="password" id="loginPassword" placeholder="Enter password">
+                            </div>
+                            <button class="btn btn-success" onclick="login()">🔓 Login</button>
+                            <div class="loading" id="loginLoading">Logging in...</div>
+                            <div class="response-container" id="loginResponse"></div>
+                        </div>
+
+                        <!-- Register -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /auth/register
+                            </div>
+                            <h3>Register</h3>
+                            <div class="form-group">
+                                <label>Name:</label>
+                                <input type="text" id="registerName" placeholder="Enter name">
+                            </div>
+                            <div class="form-group">
+                                <label>Account:</label>
+                                <input type="text" id="registerAccount" placeholder="Enter account">
+                            </div>
+                            <div class="form-group">
+                                <label>Password:</label>
+                                <input type="password" id="registerPassword" placeholder="Enter password">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password:</label>
+                                <input type="password" id="registerConfirmPassword" placeholder="Confirm password">
+                            </div>
+                            <button class="btn btn-success" onclick="register()">📝 Register</button>
+                            <div class="loading" id="registerLoading">Registering...</div>
+                            <div class="response-container" id="registerResponse"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div id="notes" class="section">
+                    <h2>📝 Notes Management</h2>
+                    
+                    <div class="two-column">
+                        <!-- Create Note -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /user/notes/create
+                            </div>
+                            <h3>Create Note</h3>
+                            <div class="form-group">
+                                <label>Title:</label>
+                                <input type="text" id="createTitle" placeholder="Enter note title">
+                            </div>
+                            <div class="form-group">
+                                <label>Content:</label>
+                                <textarea id="createContent" placeholder="Enter note content"></textarea>
+                            </div>
+                            <button class="btn btn-success" onclick="createNote()">✨ Create Note</button>
+                            <div class="loading" id="createLoading">Creating note...</div>
+                            <div class="response-container" id="createResponse"></div>
+                        </div>
+
+                        <!-- Update Note -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /user/notes/update/{id}
+                            </div>
+                            <h3>Update Note</h3>
+                            <div class="form-group">
+                                <label>Note ID:</label>
+                                <input type="number" id="updateId" placeholder="Enter note ID">
+                            </div>
+                            <div class="form-group">
+                                <label>Title:</label>
+                                <input type="text" id="updateTitle" placeholder="New title (optional)">
+                            </div>
+                            <div class="form-group">
+                                <label>Content:</label>
+                                <textarea id="updateContent" placeholder="New content (optional)"></textarea>
+                            </div>
+                            <button class="btn" onclick="updateNote()">📝 Update Note</button>
+                            <div class="loading" id="updateLoading">Updating note...</div>
+                            <div class="response-container" id="updateResponse"></div>
+                        </div>
+                    </div>
+
+                    <div class="two-column">
+                        <!-- Delete Note -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /user/notes/delete/{id}
+                            </div>
+                            <h3>Delete Note</h3>
+                            <div class="form-group">
+                                <label>Note ID:</label>
+                                <input type="number" id="deleteId" placeholder="Enter note ID to delete">
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteNote()">🗑️ Delete Note</button>
+                            <div class="loading" id="deleteLoading">Deleting note...</div>
+                            <div class="response-container" id="deleteResponse"></div>
+                        </div>
+
+                        <!-- View Note Details -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method get">GET</span> /user/notes/view/details/{id}
+                            </div>
+                            <h3>View Note Details</h3>
+                            <div class="form-group">
+                                <label>Note ID:</label>
+                                <input type="number" id="viewDetailId" placeholder="Enter note ID">
+                            </div>
+                            <button class="btn" onclick="viewNoteDetails()">👁️ View Details</button>
+                            <div class="loading" id="viewDetailLoading">Loading note details...</div>
+                            <div class="response-container" id="viewDetailResponse"></div>
+                        </div>
+                    </div>
+
+                    <!-- View All Notes -->
+                    <div class="api-section">
+                        <div class="endpoint-info">
+                            <span class="method get">GET</span> /user/notes/view
+                        </div>
+                        <h3>View All Notes</h3>
+                        <button class="btn btn-success" onclick="viewAllNotes()">📋 View All Notes</button>
+                        <div class="loading" id="viewAllLoading">Loading all notes...</div>
+                        <div class="response-container" id="viewAllResponse"></div>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div id="profile" class="section">
+                    <h2>👤 Profile Management</h2>
+                    
+                    <div class="two-column">
+                        <!-- View Profile -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method get">GET</span> /user/profile/view
+                            </div>
+                            <h3>View Profile</h3>
+                            <button class="btn btn-success" onclick="viewProfile()">👁️ View Profile</button>
+                            <div class="loading" id="profileLoading">Loading profile...</div>
+                            <div class="response-container" id="profileResponse"></div>
+                        </div>
+
+                        <!-- Change Name -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /user/profile/changename/{changeName}
+                            </div>
+                            <h3>Change Name</h3>
+                            <div class="form-group">
+                                <label>New Name:</label>
+                                <input type="text" id="newName" placeholder="Enter new name">
+                            </div>
+                            <button class="btn" onclick="changeName()">✏️ Change Name</button>
+                            <div class="loading" id="changeNameLoading">Changing name...</div>
+                            <div class="response-container" id="changeNameResponse"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Section -->
+                <div id="account" class="section">
+                    <h2>⚙️ Account Settings</h2>
+                    
+                    <div class="two-column">
+                        <!-- Change Password -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method post">POST</span> /user/account/changepass
+                            </div>
+                            <h3>Change Password</h3>
+                            <div class="form-group">
+                                <label>New Password:</label>
+                                <input type="password" id="newPassword" placeholder="Enter new password">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password:</label>
+                                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                            </div>
+                            <button class="btn" onclick="changePassword()">🔒 Change Password</button>
+                            <div class="loading" id="changePassLoading">Changing password...</div>
+                            <div class="response-container" id="changePassResponse"></div>
+                        </div>
+
+                        <!-- Delete Account -->
+                        <div class="api-section">
+                            <div class="endpoint-info">
+                                <span class="method get">GET</span> /user/account/delete
+                            </div>
+                            <h3>Delete Account</h3>
+                            <p style="color: #e74c3c; margin-bottom: 15px;">⚠️ This action cannot be undone!</p>
+                            <button class="btn btn-danger" onclick="deleteAccount()">🗑️ Delete Account</button>
+                            <div class="loading" id="deleteAccountLoading">Deleting account...</div>
+                            <div class="response-container" id="deleteAccountResponse"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let config = {
+            baseUrl: 'http://localhost:8080',
+            authToken: ''
+        };
+
+        // Load saved configuration
+        function loadConfig() {
+            const saved = localStorage.getItem('apiConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('baseUrl').value = config.baseUrl;
+                document.getElementById('authToken').value = config.authToken;
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            config.baseUrl = document.getElementById('baseUrl').value;
+            config.authToken = document.getElementById('authToken').value;
+            localStorage.setItem('apiConfig', JSON.stringify(config));
+            alert('Configuration saved!');
+        }
+
+        // Show section
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+            
+            document.getElementById(sectionName).classList.add('active');
+            document.querySelector(`.sidebar-item[onclick="showSection('${sectionName}')"]`).classList.add('active');
+        }
+
+        // Generic API call function
+        async function makeApiCall(endpoint, method = 'GET', body = null, loadingId, responseId) {
+            const loadingEl = document.getElementById(loadingId);
+            const responseEl = document.getElementById(responseId);
+            
+            loadingEl.style.display = 'block';
+            responseEl.textContent = '';
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (config.authToken && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
+                headers['Authorization'] = `Bearer ${config.authToken}`;
+            }
+
+            try {
+                const response = await fetch(`${config.baseUrl}${endpoint}`, {
+                    method: method,
+                    headers: headers,
+                    body: body ? JSON.stringify(body) : null
+                });
+
+                const responseText = await response.text();
+                let responseData;
+                
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = responseText;
+                }
+
+                loadingEl.style.display = 'none';
+                responseEl.textContent = `Status: ${response.status} ${response.statusText}\n\n${JSON.stringify(responseData, null, 2)}`;
+                
+                return responseData;
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                responseEl.textContent = `Error: ${error.message}`;
+                console.error('API Error:', error);
+            }
+        }
+
+        // Authentication API functions
+        async function login() {
+            const account = document.getElementById('loginAccount').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!account || !password) {
+                alert('Please fill in both account and password');
+                return;
+            }
+
+            const response = await makeApiCall('/auth/login', 'POST', { account, password }, 'loginLoading', 'loginResponse');
+            if (response && response.token) {
+                config.authToken = response.token;
+                document.getElementById('authToken').value = response.token;
+                saveConfig();
+                alert('Login successful! Token saved.');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const account = document.getElementById('registerAccount').value;
+            const password = document.getElementById('registerPassword').value;
+            const repassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!name || !account || !password || !repassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password !== repassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            makeApiCall('/auth/register', 'POST', { name, account, password, repassword }, 'registerLoading', 'registerResponse');
+        }
+
+        // Note API functions
+        function createNote() {
+            const title = document.getElementById('createTitle').value;
+            const content = document.getElementById('createContent').value;
+            
+            if (!title || !content) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            makeApiCall('/user/notes/create', 'POST', { title, content }, 'createLoading', 'createResponse');
+        }
+
+        function updateNote() {
+            const id = document.getElementById('updateId').value;
+            const title = document.getElementById('updateTitle').value;
+            const content = document.getElementById('updateContent').value;
+            
+            if (!id) {
+                alert('Please enter note ID');
+                return;
+            }
+
+            const body = {};
+            if (title) body.title = title;
+            if (content) body.content = content;
+
+            makeApiCall(`/user/notes/update/${id}`, 'POST', body, 'updateLoading', 'updateResponse');
+        }
+
+        function deleteNote() {
+            const id = document.getElementById('deleteId').value;
+            
+            if (!id) {
+                alert('Please enter note ID');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this note?')) {
+                makeApiCall(`/user/notes/delete/${id}`, 'POST', null, 'deleteLoading', 'deleteResponse');
+            }
+        }
+
+        function viewNoteDetails() {
+            const id = document.getElementById('viewDetailId').value;
+            
+            if (!id) {
+                alert('Please enter note ID');
+                return;
+            }
+
+            makeApiCall(`/user/notes/view/details/${id}`, 'GET', null, 'viewDetailLoading', 'viewDetailResponse');
+        }
+
+        function viewAllNotes() {
+            makeApiCall('/user/notes/view', 'GET', null, 'viewAllLoading', 'viewAllResponse');
+        }
+
+        // Profile API functions
+        function viewProfile() {
+            makeApiCall('/user/profile/view', 'GET', null, 'profileLoading', 'profileResponse');
+        }
+
+        function changeName() {
+            const newName = document.getElementById('newName').value;
+            
+            if (!newName) {
+                alert('Please enter new name');
+                return;
+            }
+
+            makeApiCall(`/user/profile/changename/${encodeURIComponent(newName)}`, 'POST', null, 'changeNameLoading', 'changeNameResponse');
+        }
+
+        // Account API functions
+        function changePassword() {
+            const changePass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            
+            if (!changePass || !confirmPass) {
+                alert('Please fill in both password fields');
+                return;
+            }
+
+            makeApiCall('/user/account/changepass', 'POST', { changePass, confirmPass }, 'changePassLoading', 'changePassResponse');
+        }
+
+        function deleteAccount() {
+            if (confirm('Are you ABSOLUTELY sure you want to delete your account? This cannot be undone!')) {
+                if (confirm('This is your final warning. Your account and all data will be permanently deleted!')) {
+                    makeApiCall('/user/account/delete', 'GET', null, 'deleteAccountLoading', 'deleteAccountResponse');
+                }
+            }
+        }
+
+        // Initialize
+        loadConfig();
+    </script>
+</body>
+</html>
