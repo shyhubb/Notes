@@ -2,7 +2,7 @@ package BE.Note.service.impl;
 
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import BE.Note.dto.Response.ProfileResponse;
 import BE.Note.entities.User;
@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private CurrentUserDetails currentUserDetails;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public ProfileResponse viewProfile() {

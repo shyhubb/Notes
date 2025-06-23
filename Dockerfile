@@ -9,9 +9,8 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Sửa lỗi cú pháp ở dòng dưới: bỏ khoảng trắng sau `--`
+# Nếu WAR được build đúng, dòng này phải đúng tên file
 COPY --from=build /app/target/Note-0.0.1-SNAPSHOT.war Note.war
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "Note.war"]
