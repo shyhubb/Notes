@@ -1,6 +1,6 @@
 Small Note Manager
 🚀 Đã triển khai vào ngày 23/06/2025
-Liên kết kiểm thử: https://fst.fwh.is/notes.html?i=1
+Liên kết kiểm thử:  https://adfly.ct.ws/
 
 Ứng dụng quản lý ghi chú đơn giản được xây dựng với Spring Boot. Đây là dự án đầu tay của tôi, một trải nghiệm học hỏi và thực hành đầy thú vị! 😄
 
