@@ -24,7 +24,7 @@ Clone dự án:
 
 Bash
 
-git clone https://github.com/shyhubb/note.git
+git clone https://github.com/shyhubb/Notes.git
 Truy cập thư mục dự án:
 
 Bash
