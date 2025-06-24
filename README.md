@@ -105,4 +105,4 @@ Tôi xin chân thành cảm ơn cộng đồng Spring Boot đã cung cấp nhữ
 Dự án này được xây dựng với 💖 như một phần trong hành trình học Spring Boot của tôi.
 
 Tác giả: Shyhubb – shyhubel@gmail.com
-Liên kết dự án: https://github.com/shyhubb/note
+Liên kết dự án: https://github.com/shyhubb/Notes
