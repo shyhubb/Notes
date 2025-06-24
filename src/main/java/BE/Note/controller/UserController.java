@@ -39,18 +39,18 @@ public class UserController {
 
     // create
     @PostMapping("notes/create")
-    public ResponseEntity<String> createNote(@RequestBody NoteRequest noteRequest) {
+    public ResponseEntity<BaseResponse<String>> createNote(@RequestBody NoteRequest noteRequest) {
         String message = noteServiceImpl.createNote(noteRequest.getTitle(), noteRequest.getContent());
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+        return new ResponseEntity<>(new BaseResponse<>(message, null), HttpStatus.CREATED);
     }
 
     // update
-
     @PostMapping("notes/update/{id}")
-    public ResponseEntity<String> updateNote(@RequestBody NoteRequest noteRequest, @PathVariable Long id) {
+    public ResponseEntity<BaseResponse<String>> updateNote(@RequestBody NoteRequest noteRequest,
+            @PathVariable Long id) {
         Optional<Note> notetemp = noteServiceImpl.findById(id);
         if (!notetemp.isPresent())
-            return new ResponseEntity<>("Note Does Not Exist.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new BaseResponse<>("Note Does Not Exist.", null), HttpStatus.BAD_REQUEST);
         Note note = notetemp.get();
         if (noteRequest.getTitle() != null)
             note.setTitle(noteRequest.getTitle());
@@ -59,22 +59,20 @@ public class UserController {
 
         noteServiceImpl.save(note);
 
-        return new ResponseEntity<>("Update Note Success.", HttpStatus.OK);
+        return new ResponseEntity<>(new BaseResponse<>("Update Note Success.", null), HttpStatus.OK);
     }
 
     // delete
-
     @PostMapping("/notes/delete/{id}")
-    public ResponseEntity<String> deleteNote(@PathVariable Long id) {
+    public ResponseEntity<BaseResponse<String>> deleteNote(@PathVariable Long id) {
         Optional<Note> notetemp = noteServiceImpl.findById(id);
         if (!notetemp.isPresent())
-            return new ResponseEntity<>("Note Does Not Exist.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new BaseResponse<>("Note Does Not Exist.", null), HttpStatus.BAD_REQUEST);
         noteServiceImpl.deleteNote(id);
-        return new ResponseEntity<>("Delete Note Success.", HttpStatus.OK);
+        return new ResponseEntity<>(new BaseResponse<>("Delete Note Success.", null), HttpStatus.OK);
     }
 
     // view all note form this user(resquest)
-
     @GetMapping("/notes/view")
     public ResponseEntity<BaseResponse<List<NoteResponse>>> detailsNote() {
         List<Note> notes = noteServiceImpl.findByUser(currentUserDetails.getUserDetails());
@@ -130,7 +128,6 @@ public class UserController {
     }
 
     // endpoint for user profile
-
     @GetMapping("/profile/view")
     public ResponseEntity<BaseResponse<ProfileResponse>> viewProfile() {
         if (userServiceImpl.viewProfile() != null) {
@@ -148,7 +145,6 @@ public class UserController {
         }
         userServiceImpl.changeName(changeName);
         return ResponseEntity.ok(new BaseResponse<>("Success", changeName));
-
     }
 
     @GetMapping("/account/delete")
@@ -164,5 +160,4 @@ public class UserController {
             return new ResponseEntity<>(new BaseResponse<>(message, null), HttpStatus.OK);
         return new ResponseEntity<>(new BaseResponse<>(message, null), HttpStatus.BAD_REQUEST);
     }
-
 }

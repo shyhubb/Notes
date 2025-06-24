@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import BE.Note.dto.Request.LoginRequest;
 import BE.Note.dto.Request.RegisterRequest;
+import BE.Note.dto.Response.BaseResponse;
 import BE.Note.dto.Response.LoginResponse;
 import BE.Note.security.JwtTokenProvider;
 import BE.Note.service.impl.AuthServiceImpl;
@@ -23,23 +24,25 @@ public class AuthController {
     private JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<String> Register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<BaseResponse<String>> Register(@RequestBody RegisterRequest registerRequest) {
         String massage = authServiceImpl.Register(registerRequest.getName(), registerRequest.getAccount(),
                 registerRequest.getPassword(), registerRequest.getRepassword());
         if (massage.equals("Create Account Success."))
-            return new ResponseEntity<>(massage, HttpStatus.CREATED);
+            return new ResponseEntity<>(new BaseResponse<String>(massage, null), HttpStatus.CREATED);
         else
-            return new ResponseEntity<>(massage, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new BaseResponse<String>(massage, null), HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> Login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<BaseResponse<LoginResponse>> Login(@RequestBody LoginRequest loginRequest) {
         String message = authServiceImpl.Login(loginRequest.getAccount(), loginRequest.getPassword());
         if (message.equals("Login Success.")) {
             String token = jwtTokenProvider.generateToken(loginRequest.getAccount());
-            return new ResponseEntity<>(new LoginResponse(message, token), HttpStatus.OK);
+            return new ResponseEntity<>(new BaseResponse<LoginResponse>(message, new LoginResponse(message, token)),
+                    HttpStatus.OK);
         }
-        return new ResponseEntity<>(new LoginResponse(message, null), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new BaseResponse<LoginResponse>(message, new LoginResponse(message, null)),
+                HttpStatus.BAD_REQUEST);
     }
 
 }

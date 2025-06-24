@@ -2,6 +2,7 @@ package BE.Note.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import BE.Note.dto.Response.BaseResponse;
 import BE.Note.dto.Response.NoteResponse;
 import BE.Note.service.impl.AdminServiceImpl;
 import java.util.List;
@@ -17,12 +18,11 @@ public class AdminController {
     private AdminServiceImpl adminServiceImpl;
 
     @GetMapping("/notes/showall")
-    public ResponseEntity<List<NoteResponse>> showAllNote() {
+    public ResponseEntity<BaseResponse<List<NoteResponse>>> showAllNote() {
         List<NoteResponse> notes = adminServiceImpl.showAllNote();
-        if (notes == null)
-            return new ResponseEntity<>(notes, HttpStatus.BAD_REQUEST);
-        System.out.println(notes);
-        return new ResponseEntity<>(notes, HttpStatus.OK);
+        if (notes == null || notes.isEmpty()) { // Check for null or empty list
+            return new ResponseEntity<>(new BaseResponse<>("No notes found.", null), HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(new BaseResponse<>("Successfully retrieved all notes.", notes), HttpStatus.OK);
     }
-
 }
