@@ -44,12 +44,15 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public String deleteNote(Long id) {
-        Optional<Note> nOptional = noteRepository.findById(id);
-        if (nOptional.isPresent()) {
-            noteRepository.deleteById(id);
-            return "Delete Notes Success.";
+        User user = currentUserDetails.getUserDetails();
+        if (user.equals(noteRepository.findByUser(user))) {
+            Optional<Note> nOptional = noteRepository.findById(id);
+            if (nOptional.isPresent()) {
+                noteRepository.deleteById(id);
+                return "Delete Notes Success.";
+            }
         }
-        return "You Do Not Have Permission To Access This Note Or The Note Exists";
+        return "You Do Not Have Permission To Access This Note.";
     }
 
     @Override
