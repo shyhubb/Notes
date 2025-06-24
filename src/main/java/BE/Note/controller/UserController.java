@@ -2,7 +2,6 @@ package BE.Note.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import BE.Note.dto.Request.ChangePassRequest;
 import BE.Note.dto.Request.NoteRequest;
 import BE.Note.dto.Response.BaseResponse;
@@ -68,8 +67,11 @@ public class UserController {
         Optional<Note> notetemp = noteServiceImpl.findById(id);
         if (!notetemp.isPresent())
             return new ResponseEntity<>(new BaseResponse<>("Note Does Not Exist.", null), HttpStatus.BAD_REQUEST);
-        noteServiceImpl.deleteNote(id);
-        return new ResponseEntity<>(new BaseResponse<>("Delete Note Success.", null), HttpStatus.OK);
+        String message = noteServiceImpl.deleteNote(id);
+        if (message.equals("Delete Notes Success.")) {
+            return new ResponseEntity<>(new BaseResponse<String>(message, null), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new BaseResponse<String>(message, null), HttpStatus.BAD_REQUEST);
     }
 
     // view all note form this user(resquest)

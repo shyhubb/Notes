@@ -1,821 +1,1074 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Note API Dashboard</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <!-- Lato Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Lato', sans-serif;
+            background-color: #1a1a1a;
+            /* Dark background */
+            color: #ffffff;
+            /* Explicitly white for general contrast */
+            padding-top: 5rem;
+            /* Space for fixed notification bar */
+            line-height: 1.6;
+            /* Improved line height for readability */
         }
 
-        .container {
+        .container-fluid {
             max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .card {
+            background-color: #2c2c2c;
+            /* Darker card background */
+            border: 1px solid #444;
+            border-radius: 0.75rem;
+            /* More rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+        .card-header {
+            background-color: #333;
+            border-bottom: 1px solid #444;
+            color: #ffffff;
+            /* Ensure header text is very light */
+            font-weight: 700;
+            /* Bolder font for headers */
+            border-radius: 0.75rem 0.75rem 0 0;
+            padding: 1.25rem 1.5rem;
+            /* More padding for header */
         }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
+        .card-title {
+            font-size: 1.6rem;
+            /* Slightly larger card titles */
+            color: #ffffff;
+            /* Ensure card titles are white */
         }
 
-        .config-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
+        /* Specific styling for headings within card bodies */
+        .card-body h3,
+        .card-body h4,
+        .card-body h5,
+        .card-body h6 {
+            color: #ffffff;
+            /* Ensure all headings inside card bodies are white */
         }
 
-        .config-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
+        .form-control,
+        .btn {
+            border-radius: 0.5rem;
+            /* Slightly less rounded than cards for differentiation */
         }
 
-        .config-row input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
+        .form-control {
+            background-color: #3b3b3b;
+            color: #ffffff;
+            /* Input text color */
+            border-color: #555;
+            padding: 0.75rem 1rem;
+            /* Standardized input padding */
+            font-size: 1rem;
+            /* Standardized input font size */
         }
 
-        .config-row input:focus {
-            outline: none;
-            border-color: #667eea;
+        .form-control::placeholder {
+            color: #e0e0e0;
+            /* Lighter placeholder text for better contrast */
+            opacity: 1;
+            /* Ensures placeholder is visible */
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 600px;
-        }
-
-        .sidebar {
-            background: #2c3e50;
-            color: white;
-            padding: 0;
-        }
-
-        .sidebar-item {
-            padding: 15px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #34495e;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-item:hover {
-            background: #34495e;
-        }
-
-        .sidebar-item.active {
-            background: #3498db;
-            border-left: 4px solid #fff;
-        }
-
-        .sidebar-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .api-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3498db;
-        }
-
-        .api-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
+        .form-control:focus {
+            background-color: #3b3b3b;
+            color: #ffffff;
+            border-color: #777;
+            box-shadow: 0 0 0 0.25rem rgba(119, 119, 119, 0.25);
         }
 
         .btn {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            font-weight: 700;
+            /* Bolder button text */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 0.8rem 1.5rem;
+            /* Standardized button padding */
+            font-size: 1.05rem;
+            /* Standardized button font size */
+            color: #ffffff;
+            /* Ensure button text is white */
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+            transform: translateY(0);
+        }
+
+        /* Specific button colors (overriding Bootstrap defaults for consistent dark theme) */
+        .btn-secondary {
+            background-color: #555;
+            border-color: #555;
+        }
+
+        .btn-secondary:hover {
+            background-color: #777;
+            border-color: #777;
+        }
+
+        .btn-secondary:active {
+            background-color: #444;
+            border-color: #444;
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background-color: #dc2626;
+            border-color: #dc2626;
         }
 
         .btn-danger:hover {
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            background-color: #b91c1c;
+            border-color: #b91c1c;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #27ae60, #229954);
+        .btn-danger:active {
+            background-color: #991b1b;
+            border-color: #991b1b;
         }
 
-        .btn-success:hover {
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        .btn-info {
+            /* Used for Admin button for distinct color */
+            background-color: #4f46e5;
+            /* Using indigo color as before */
+            border-color: #4f46e5;
         }
 
-        .response-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2c3e50;
-            border-radius: 8px;
-            color: #ecf0f1;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            max-height: 300px;
+        .btn-info:hover {
+            background-color: #4338ca;
+            border-color: #4338ca;
+        }
+
+        .btn-info:active {
+            background-color: #3730a3;
+            border-color: #3730a3;
+        }
+
+        .response-area {
+            background-color: #0d0d0d;
+            border: 1px solid #444;
+            min-height: 200px;
             overflow-y: auto;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
             white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            color: #3498db;
-            font-style: italic;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .endpoint-info {
-            background: #e8f4fd;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+            word-break: break-word;
             font-family: monospace;
-            font-size: 13px;
-            color: #2c3e50;
+            /* Monospace for code/JSON readability */
+            font-size: 0.95rem;
+            /* Slightly smaller for code */
+            color: #ffffff;
+            /* Ensure response text is white */
         }
 
-        .method {
-            font-weight: bold;
-            color: #e74c3c;
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #666;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
         }
 
-        .method.get {
-            color: #27ae60;
-        }
-
-        .method.post {
-            color: #f39c12;
-        }
-
-        .url-status {
-            background: #e8f5e8;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            border-left: 4px solid #27ae60;
-        }
-
-        .url-status.error {
-            background: #ffeaea;
-            border-left-color: #e74c3c;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
             }
 
-            .sidebar {
-                display: none;
+            100% {
+                transform: rotate(360deg);
             }
+        }
 
-            .two-column {
-                grid-template-columns: 1fr;
-            }
+        /* Custom Notification Bar (using Bootstrap Alert styling) */
+        #notification-bar {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 0.75rem 0.75rem;
+            /* Rounded bottom corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+            /* Softer shadow */
+            display: flex;
+            /* Initially set to flex for fade-in transition */
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            /* Transition for fade */
+            z-index: 1050;
+            /* Above Bootstrap modals if they appear */
+            font-size: 1rem;
+            /* Ensure readable font size for message */
+        }
 
-            .config-row {
-                flex-direction: column;
-            }
+        #notification-bar.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
-            .config-row input {
-                min-width: 100%;
-            }
+        /* Hidden state to fully remove from flow after transition */
+        #notification-bar.d-none {
+            /* Adding Bootstrap's d-none */
+            display: none !important;
+            /* Force display none */
+        }
+
+        #notification-bar.success {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: #ffffff;
+            /* Notification text color */
+        }
+
+        #notification-bar.error {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: #ffffff;
+            /* Notification text color */
+        }
+
+        #notification-bar.info {
+            background-color: #444;
+            border-color: #555;
+            color: #ffffff;
+            /* Notification text color */
+        }
+
+        #notification-bar .close-notification-button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            /* Close button color */
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+
+        #notification-bar .close-notification-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Bootstrap Modal Customizations (to fit dark theme) */
+        .modal-content {
+            background-color: #222;
+            color: #ffffff;
+            /* Modal text color */
+            border: 1px solid #555;
+            border-radius: 0.75rem;
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: #444;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+            /* Make close button visible on dark background */
+        }
+
+        .modal-buttons .btn {
+            margin: 0 0.5rem;
+            /* Adjust spacing for modal buttons */
+        }
+
+        /* Bootstrap Tab Navigation Customizations */
+        .nav-tabs {
+            border-bottom: 1px solid #444;
+            margin-bottom: 2rem;
+            background-color: #2c2c2c;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+        }
+
+        .nav-tabs .nav-item {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-tabs .nav-link {
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: 0.75rem;
+            /* Apply radius to individual buttons too */
+            margin: 0.25rem;
+            /* Small margin between buttons */
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            /* Bolder nav link text */
+            color: #d0d0d0;
+            /* Slightly lighter for non-active tabs */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: #444;
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #555;
+            color: #ffffff;
+            border-color: #555;
+            /* Match background for active state */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-content {
+            padding: 1rem 0;
+            /* Adjust padding if needed */
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
+            /* Ensure headings are bold for readability */
+            color: #ffffff;
+            /* Ensure headings are white */
+        }
+
+        .lead {
+            font-weight: 500;
+            /* Make lead text slightly bolder */
+            color: #ffffff;
+            /* Ensure lead text is white */
+        }
+
+        /* Specifically target text-secondary to make it lighter */
+        .text-secondary {
+            color: #d0d0d0 !important;
+            /* Lighter shade of grey for secondary text */
+        }
+
+        .text-success {
+            color: #28a745 !important;
+            /* Standard success green, ensure visibility */
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+            /* Standard danger red, ensure visibility */
         }
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📝 Note API Dashboard</h1>
-            <p>Test your Spring Boot Note API endpoints easily</p>
+<body class="bg-dark text-light">
+    <!-- Notification Bar -->
+    <div id="notification-bar" class="alert alert-dismissible fade" role="alert">
+        <span id="notification-message"></span>
+        <button type="button" class="btn-close close-notification-button" aria-label="Close"></button>
+    </div>
+
+    <div class="container-fluid py-4">
+        <title>API NOTES DELOY TESTER </title>
+        <h1 class="text-center mb-5 text-light fw-bold">Development By Shyhubb</h1>
+
+        <!-- User Status -->
+        <div class="card mb-4">
+            <div class="card-header text-center">
+                <h2 class="card-title h4 mb-0">Trạng thái Người dùng</h2>
+            </div>
+            <div class="card-body text-center">
+                <p id="user-status" class="lead text-success">Chưa đăng nhập</p>
+                <button id="logout-button" class="btn btn-danger mt-3 d-none">Đăng xuất</button>
+            </div>
         </div>
 
-        <div class="config-section">
-            <div class="url-status" id="urlStatus">
-                🌐 Current API URL: <strong>https://notes-1-qj5g.onrender.com</strong>
+        <!-- Main Navigation Tabs -->
+        <ul class="nav nav-tabs" id="mainTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth-section"
+                    type="button" role="tab" aria-controls="auth-section" aria-selected="true">Xác thực</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="user-notes-tab" data-bs-toggle="tab" data-bs-target="#user-notes-section"
+                    type="button" role="tab" aria-controls="user-notes-section" aria-selected="false">Ghi chú người
+                    dùng</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-section"
+                    type="button" role="tab" aria-controls="profile-section" aria-selected="false">Hồ sơ người
+                    dùng</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-section"
+                    type="button" role="tab" aria-controls="admin-section" aria-selected="false">Quản trị viên</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="mainTabContent">
+            <!-- Authentication Section -->
+            <div class="tab-pane fade show active" id="auth-section" role="tabpanel" aria-labelledby="auth-tab">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title h4 mb-0">Xác thực</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <!-- Register -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Đăng ký</h3>
+                                <div class="mb-3">
+                                    <input type="text" id="register-name" class="form-control" placeholder="Tên">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="text" id="register-account" class="form-control"
+                                        placeholder="Tài khoản">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="password" id="register-password" class="form-control"
+                                        placeholder="Mật khẩu">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="password" id="register-repassword" class="form-control"
+                                        placeholder="Nhập lại mật khẩu">
+                                </div>
+                                <button id="register-button" class="btn btn-secondary w-100">Đăng ký</button>
+                            </div>
+
+                            <!-- Login -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Đăng nhập</h3>
+                                <div class="mb-3">
+                                    <input type="text" id="login-account" class="form-control" placeholder="Tài khoản">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="password" id="login-password" class="form-control"
+                                        placeholder="Mật khẩu">
+                                </div>
+                                <button id="login-button" class="btn btn-secondary w-100">Đăng nhập</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="config-row">
-                <input type="text" id="baseUrl" placeholder="Base URL" value="https://notes-1-qj5g.onrender.com">
-                <input type="text" id="authToken" placeholder="Authorization Token (Bearer token if needed)">
-                <button class="btn" onclick="saveConfig()">💾 Save Config</button>
-                <button class="btn" onclick="testConnection()">🔗 Test Connection</button>
+
+            <!-- User Notes Section -->
+            <div class="tab-pane fade" id="user-notes-section" role="tabpanel" aria-labelledby="user-notes-tab">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title h4 mb-0">Ghi chú của Người dùng</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4 mb-4">
+                            <!-- Create Note -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Tạo ghi chú mới</h3>
+                                <div class="mb-3">
+                                    <input type="text" id="create-note-title" class="form-control"
+                                        placeholder="Tiêu đề">
+                                </div>
+                                <div class="mb-3">
+                                    <textarea id="create-note-content" class="form-control" placeholder="Nội dung"
+                                        rows="4"></textarea>
+                                </div>
+                                <button id="create-note-button" class="btn btn-secondary w-100">Tạo ghi chú</button>
+                            </div>
+
+                            <!-- Update Note -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Cập nhật ghi chú</h3>
+                                <div class="mb-3">
+                                    <input type="number" id="update-note-id" class="form-control"
+                                        placeholder="ID ghi chú">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="text" id="update-note-title" class="form-control"
+                                        placeholder="Tiêu đề mới">
+                                </div>
+                                <div class="mb-3">
+                                    <textarea id="update-note-content" class="form-control" placeholder="Nội dung mới"
+                                        rows="4"></textarea>
+                                </div>
+                                <button id="update-note-button" class="btn btn-secondary w-100">Cập nhật ghi
+                                    chú</button>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- Delete Note -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Xóa ghi chú</h3>
+                                <div class="mb-3">
+                                    <input type="number" id="delete-note-id" class="form-control"
+                                        placeholder="ID ghi chú">
+                                </div>
+                                <button id="delete-note-button" class="btn btn-danger w-100">Xóa ghi chú</button>
+                            </div>
+
+                            <!-- View Note Details -->
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Xem chi tiết ghi chú</h3>
+                                <div class="mb-3">
+                                    <input type="number" id="view-details-note-id" class="form-control"
+                                        placeholder="ID ghi chú">
+                                </div>
+                                <button id="view-details-note-button" class="btn btn-secondary w-100">Xem chi
+                                    tiết</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="h5 mb-3">Xem tất cả ghi chú</h3>
+                            <button id="view-all-notes-button" class="btn btn-secondary w-100">Xem tất cả</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="tab-pane fade" id="profile-section" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title h4 mb-0">Hồ sơ Người dùng</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Xem Hồ sơ</h3>
+                                <button id="view-profile-button" class="btn btn-secondary w-100">Xem Hồ sơ</button>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Đổi tên</h3>
+                                <div class="mb-3">
+                                    <input type="text" id="change-name-input" class="form-control"
+                                        placeholder="Tên mới">
+                                </div>
+                                <button id="change-name-button" class="btn btn-secondary w-100">Đổi tên</button>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-4">
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Đổi mật khẩu</h3>
+                                <div class="mb-3">
+                                    <input type="password" id="change-pass-new-password" class="form-control"
+                                        placeholder="Mật khẩu mới">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="password" id="change-pass-confirm-password" class="form-control"
+                                        placeholder="Xác nhận mật khẩu mới">
+                                </div>
+                                <button id="change-password-button" class="btn btn-secondary w-100">Đổi mật
+                                    khẩu</button>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-3">Xóa tài khoản</h3>
+                                <button id="delete-account-button" class="btn btn-danger w-100">Xóa tài khoản</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Section -->
+            <div class="tab-pane fade" id="admin-section" role="tabpanel" aria-labelledby="admin-tab">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title h4 mb-0">Quản trị viên</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-secondary mb-4">Lưu ý: Endpoint này yêu cầu quyền quản trị.</p>
+                        <button id="admin-show-all-button" class="btn btn-info w-100">Xem tất cả ghi chú
+                            (Admin)</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="sidebar-item active" onclick="showSection('auth')">
-                    <i>🔐</i> Authentication
-                </div>
-                <div class="sidebar-item" onclick="showSection('notes')">
-                    <i>📝</i> Notes Management
-                </div>
-                <div class="sidebar-item" onclick="showSection('profile')">
-                    <i>👤</i> Profile Management
-                </div>
-                <div class="sidebar-item" onclick="showSection('account')">
-                    <i>⚙️</i> Account Settings
-                </div>
+        <!-- Response Area -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="card-title h4 mb-0">Phản hồi API</h2>
             </div>
-
-            <div class="content">
-                <!-- Authentication Section -->
-                <div id="auth" class="section active">
-                    <h2>🔐 Authentication</h2>
-
-                    <div class="two-column">
-                        <!-- Login -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /auth/login
-                            </div>
-                            <h3>Login</h3>
-                            <div class="form-group">
-                                <label>Account:</label>
-                                <input type="text" id="loginAccount" placeholder="Enter account">
-                            </div>
-                            <div class="form-group">
-                                <label>Password:</label>
-                                <input type="password" id="loginPassword" placeholder="Enter password">
-                            </div>
-                            <button class="btn btn-success" onclick="login()">🔓 Login</button>
-                            <div class="loading" id="loginLoading">Logging in...</div>
-                            <div class="response-container" id="loginResponse"></div>
-                        </div>
-
-                        <!-- Register -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /auth/register
-                            </div>
-                            <h3>Register</h3>
-                            <div class="form-group">
-                                <label>Name:</label>
-                                <input type="text" id="registerName" placeholder="Enter name">
-                            </div>
-                            <div class="form-group">
-                                <label>Account:</label>
-                                <input type="text" id="registerAccount" placeholder="Enter account">
-                            </div>
-                            <div class="form-group">
-                                <label>Password:</label>
-                                <input type="password" id="registerPassword" placeholder="Enter password">
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm Password:</label>
-                                <input type="password" id="registerConfirmPassword" placeholder="Confirm password">
-                            </div>
-                            <button class="btn btn-success" onclick="register()">📝 Register</button>
-                            <div class="loading" id="registerLoading">Registering...</div>
-                            <div class="response-container" id="registerResponse"></div>
-                        </div>
+            <div class="card-body">
+                <div id="loading-indicator" class="d-flex justify-content-center align-items-center mb-3 d-none">
+                    <div class="spinner-border text-light" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
                     </div>
                 </div>
+                <pre id="response-display" class="response-area text-light"></pre>
+            </div>
+        </div>
+    </div>
 
-                <!-- Notes Section -->
-                <div id="notes" class="section">
-                    <h2>📝 Notes Management</h2>
-
-                    <div class="two-column">
-                        <!-- Create Note -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /user/notes/create
-                            </div>
-                            <h3>Create Note</h3>
-                            <div class="form-group">
-                                <label>Title:</label>
-                                <input type="text" id="createTitle" placeholder="Enter note title">
-                            </div>
-                            <div class="form-group">
-                                <label>Content:</label>
-                                <textarea id="createContent" placeholder="Enter note content"></textarea>
-                            </div>
-                            <button class="btn btn-success" onclick="createNote()">✨ Create Note</button>
-                            <div class="loading" id="createLoading">Creating note...</div>
-                            <div class="response-container" id="createResponse"></div>
-                        </div>
-
-                        <!-- Update Note -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /user/notes/update/{id}
-                            </div>
-                            <h3>Update Note</h3>
-                            <div class="form-group">
-                                <label>Note ID:</label>
-                                <input type="number" id="updateId" placeholder="Enter note ID">
-                            </div>
-                            <div class="form-group">
-                                <label>Title:</label>
-                                <input type="text" id="updateTitle" placeholder="New title (optional)">
-                            </div>
-                            <div class="form-group">
-                                <label>Content:</label>
-                                <textarea id="updateContent" placeholder="New content (optional)"></textarea>
-                            </div>
-                            <button class="btn" onclick="updateNote()">📝 Update Note</button>
-                            <div class="loading" id="updateLoading">Updating note...</div>
-                            <div class="response-container" id="updateResponse"></div>
-                        </div>
-                    </div>
-
-                    <div class="two-column">
-                        <!-- Delete Note -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /user/notes/delete/{id}
-                            </div>
-                            <h3>Delete Note</h3>
-                            <div class="form-group">
-                                <label>Note ID:</label>
-                                <input type="number" id="deleteId" placeholder="Enter note ID to delete">
-                            </div>
-                            <button class="btn btn-danger" onclick="deleteNote()">🗑️ Delete Note</button>
-                            <div class="loading" id="deleteLoading">Deleting note...</div>
-                            <div class="response-container" id="deleteResponse"></div>
-                        </div>
-
-                        <!-- View Note Details -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method get">GET</span> /user/notes/view/details/{id}
-                            </div>
-                            <h3>View Note Details</h3>
-                            <div class="form-group">
-                                <label>Note ID:</label>
-                                <input type="number" id="viewDetailId" placeholder="Enter note ID">
-                            </div>
-                            <button class="btn" onclick="viewNoteDetails()">👁️ View Details</button>
-                            <div class="loading" id="viewDetailLoading">Loading note details...</div>
-                            <div class="response-container" id="viewDetailResponse"></div>
-                        </div>
-                    </div>
-
-                    <!-- View All Notes -->
-                    <div class="api-section">
-                        <div class="endpoint-info">
-                            <span class="method get">GET</span> /user/notes/view
-                        </div>
-                        <h3>View All Notes</h3>
-                        <button class="btn btn-success" onclick="viewAllNotes()">📋 View All Notes</button>
-                        <div class="loading" id="viewAllLoading">Loading all notes...</div>
-                        <div class="response-container" id="viewAllResponse"></div>
-                    </div>
+    <!-- Bootstrap Modal for Confirms -->
+    <div class="modal fade" id="custom-modal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customModalLabel">Xác nhận</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <!-- Profile Section -->
-                <div id="profile" class="section">
-                    <h2>👤 Profile Management</h2>
-
-                    <div class="two-column">
-                        <!-- View Profile -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method get">GET</span> /user/profile/view
-                            </div>
-                            <h3>View Profile</h3>
-                            <button class="btn btn-success" onclick="viewProfile()">👁️ View Profile</button>
-                            <div class="loading" id="profileLoading">Loading profile...</div>
-                            <div class="response-container" id="profileResponse"></div>
-                        </div>
-
-                        <!-- Change Name -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /user/profile/changename/{changeName}
-                            </div>
-                            <h3>Change Name</h3>
-                            <div class="form-group">
-                                <label>New Name:</label>
-                                <input type="text" id="newName" placeholder="Enter new name">
-                            </div>
-                            <button class="btn" onclick="changeName()">✏️ Change Name</button>
-                            <div class="loading" id="changeNameLoading">Changing name...</div>
-                            <div class="response-container" id="changeNameResponse"></div>
-                        </div>
-                    </div>
+                <div class="modal-body">
+                    <p id="modal-message" class="lead"></p>
                 </div>
-
-                <!-- Account Section -->
-                <div id="account" class="section">
-                    <h2>⚙️ Account Settings</h2>
-
-                    <div class="two-column">
-                        <!-- Change Password -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method post">POST</span> /user/account/changepass
-                            </div>
-                            <h3>Change Password</h3>
-                            <div class="form-group">
-                                <label>New Password:</label>
-                                <input type="password" id="newPassword" placeholder="Enter new password">
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm Password:</label>
-                                <input type="password" id="confirmPassword" placeholder="Confirm new password">
-                            </div>
-                            <button class="btn" onclick="changePassword()">🔒 Change Password</button>
-                            <div class="loading" id="changePassLoading">Changing password...</div>
-                            <div class="response-container" id="changePassResponse"></div>
-                        </div>
-
-                        <!-- Delete Account -->
-                        <div class="api-section">
-                            <div class="endpoint-info">
-                                <span class="method get">GET</span> /user/account/delete
-                            </div>
-                            <h3>Delete Account</h3>
-                            <p style="color: #e74c3c; margin-bottom: 15px;">⚠️ This action cannot be undone!</p>
-                            <button class="btn btn-danger" onclick="deleteAccount()">🗑️ Delete Account</button>
-                            <div class="loading" id="deleteAccountLoading">Deleting account...</div>
-                            <div class="response-container" id="deleteAccountResponse"></div>
-                        </div>
-                    </div>
+                <div class="modal-footer justify-content-center" id="modal-buttons">
+                    <!-- Buttons will be injected here -->
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS CDN (Bundle with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
     <script>
-        // Configuration - Updated for Render deployment
-        let config = {
-            baseUrl: 'https://notes-1-qj5g.onrender.com',
-            authToken: ''
-        };
+        const BASE_URL = 'https://noteq.onrender.com';
+        const TOKEN_KEY = 'jwtToken';
 
-        // Load saved configuration
-        function loadConfig() {
-            const saved = sessionStorage.getItem('apiConfig');
-            if (saved) {
-                const savedConfig = JSON.parse(saved);
-                // Keep the Render URL as default but allow override
-                config.baseUrl = savedConfig.baseUrl || 'https://notes-1-qj5g.onrender.com';
-                config.authToken = savedConfig.authToken || '';
-                document.getElementById('baseUrl').value = config.baseUrl;
-                document.getElementById('authToken').value = config.authToken;
+        // Get DOM elements
+        const registerNameInput = document.getElementById('register-name');
+        const registerAccountInput = document.getElementById('register-account');
+        const registerPasswordInput = document.getElementById('register-password');
+        const registerRepasswordInput = document.getElementById('register-repassword');
+        const registerButton = document.getElementById('register-button');
+
+        const loginAccountInput = document.getElementById('login-account');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginButton = document.getElementById('login-button');
+
+        const createNoteTitleInput = document.getElementById('create-note-title');
+        const createNoteContentInput = document.getElementById('create-note-content');
+        const createNoteButton = document.getElementById('create-note-button');
+
+        const updateNoteIdInput = document.getElementById('update-note-id');
+        const updateNoteTitleInput = document.getElementById('update-note-title');
+        const updateNoteContentInput = document.getElementById('update-note-content');
+        const updateNoteButton = document.getElementById('update-note-button');
+
+        const deleteNoteIdInput = document.getElementById('delete-note-id');
+        const deleteNoteButton = document.getElementById('delete-note-button');
+
+        const viewDetailsNoteIdInput = document.getElementById('view-details-note-id');
+        const viewDetailsNoteButton = document.getElementById('view-details-note-button');
+        const viewAllNotesButton = document.getElementById('view-all-notes-button');
+
+        const adminShowAllButton = document.getElementById('admin-show-all-button');
+
+        const viewProfileButton = document.getElementById('view-profile-button');
+        const changeNameInput = document.getElementById('change-name-input');
+        const changeNameButton = document.getElementById('change-name-button');
+        const changePassNewPasswordInput = document.getElementById('change-pass-new-password');
+        const changePassConfirmPasswordInput = document.getElementById('change-pass-confirm-password');
+        const changePasswordButton = document.getElementById('change-password-button');
+        const deleteAccountButton = document.getElementById('delete-account-button');
+
+        const responseDisplay = document.getElementById('response-display');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const userStatusElement = document.getElementById('user-status');
+        const logoutButton = document.getElementById('logout-button');
+
+        // Notification Bar elements
+        const notificationBar = document.getElementById('notification-bar');
+        const notificationMessage = document.getElementById('notification-message');
+        const closeNotificationButton = notificationBar.querySelector('.btn-close');
+        let notificationTimeout;
+
+        // Bootstrap Modal instance
+        const customModalElement = document.getElementById('custom-modal');
+        const customModal = new bootstrap.Modal(customModalElement);
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+
+        // --- Notification Bar Functions ---
+        // Add a listener to fully hide the notification bar after its fade-out transition
+        notificationBar.addEventListener('transitionend', function () {
+            if (!notificationBar.classList.contains('show')) {
+                notificationBar.classList.add('d-none'); // Apply display: none after opacity transition
             }
-            updateUrlStatus();
-        }
+        });
 
-        // Save configuration
-        function saveConfig() {
-            config.baseUrl = document.getElementById('baseUrl').value;
-            config.authToken = document.getElementById('authToken').value;
-            sessionStorage.setItem('apiConfig', JSON.stringify(config));
-            updateUrlStatus();
-            alert('Configuration saved!');
-        }
+        function showNotification(message, type = 'info', duration = 3000) {
+            notificationMessage.textContent = message;
+            // Remove d-none first to allow the element to be part of the layout for transition
+            notificationBar.classList.remove('d-none');
+            // Reset classes, remove 'show' to ensure re-triggering fade-in
+            notificationBar.className = 'alert alert-dismissible fade';
 
-        // Update URL status display
-        function updateUrlStatus() {
-            const statusEl = document.getElementById('urlStatus');
-            const isRender = config.baseUrl.includes('onrender.com');
-            const isLocal = config.baseUrl.includes('localhost');
-
-            if (isRender) {
-                statusEl.innerHTML = `🌐 Connected to Render: <strong>${config.baseUrl}</strong>`;
-                statusEl.className = 'url-status';
-            } else if (isLocal) {
-                statusEl.innerHTML = `🏠 Connected to Local: <strong>${config.baseUrl}</strong>`;
-                statusEl.className = 'url-status';
+            if (type === 'success') {
+                notificationBar.classList.add('success');
+            } else if (type === 'error') {
+                notificationBar.classList.add('error');
             } else {
-                statusEl.innerHTML = `🔗 Custom URL: <strong>${config.baseUrl}</strong>`;
-                statusEl.className = 'url-status';
+                notificationBar.classList.add('info');
+            }
+
+            // Force a reflow to ensure the CSS transition from hidden to visible applies
+            void notificationBar.offsetWidth;
+            notificationBar.classList.add('show'); // Add 'show' to trigger fade-in
+
+            clearTimeout(notificationTimeout);
+            notificationTimeout = setTimeout(() => {
+                notificationBar.classList.remove('show'); // Trigger fade-out
+                // 'd-none' will be added by the 'transitionend' listener after fade-out completes
+            }, duration);
+        }
+
+        closeNotificationButton.addEventListener('click', () => {
+            notificationBar.classList.remove('show'); // Trigger fade-out immediately
+            clearTimeout(notificationTimeout);
+            // 'd-none' will be added by the 'transitionend' listener after fade-out completes
+        });
+
+        // --- Custom Modal Functions (for confirmation dialogs) ---
+        function showCustomModal(message, type = 'alert', onConfirm = null) {
+            modalMessage.textContent = message;
+            modalButtons.innerHTML = ''; // Clear previous buttons
+
+            if (type === 'alert') {
+                const okButton = document.createElement('button');
+                okButton.textContent = 'OK';
+                okButton.className = 'btn btn-secondary';
+                okButton.onclick = () => customModal.hide();
+                modalButtons.appendChild(okButton);
+            } else if (type === 'confirm') {
+                const confirmBtn = document.createElement('button');
+                confirmBtn.textContent = 'Xác nhận';
+                confirmBtn.className = 'btn btn-danger';
+                confirmBtn.onclick = () => {
+                    customModal.hide();
+                    if (onConfirm) onConfirm(true);
+                };
+                modalButtons.appendChild(confirmBtn);
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Hủy';
+                cancelBtn.className = 'btn btn-secondary';
+                cancelBtn.onclick = () => {
+                    customModal.hide();
+                    if (onConfirm) onConfirm(false);
+                };
+                modalButtons.appendChild(cancelBtn);
+            }
+            customModal.show();
+        }
+
+        // Helper function to show/hide loading indicator
+        function showLoading() {
+            loadingIndicator.classList.remove('d-none');
+            responseDisplay.textContent = '';
+        }
+
+        function hideLoading() {
+            loadingIndicator.classList.add('d-none');
+        }
+
+        // Helper function to display response
+        function displayResponse(data) {
+            responseDisplay.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Helper function to get stored token
+        function getToken() {
+            return localStorage.getItem(TOKEN_KEY);
+        }
+
+        // Helper function to set token
+        function setToken(token) {
+            localStorage.setItem(TOKEN_KEY, token);
+            updateUserStatus();
+        }
+
+        // Helper function to remove token
+        function removeToken() {
+            localStorage.removeItem(TOKEN_KEY);
+            updateUserStatus();
+        }
+
+        // Update user status display
+        function updateUserStatus() {
+            const token = getToken();
+            if (token) {
+                userStatusElement.textContent = 'Đã đăng nhập (Token có sẵn)';
+                userStatusElement.classList.remove('text-danger');
+                userStatusElement.classList.add('text-success');
+                logoutButton.classList.remove('d-none');
+            } else {
+                userStatusElement.textContent = 'Chưa đăng nhập';
+                userStatusElement.classList.remove('text-success');
+                userStatusElement.classList.add('text-danger');
+                logoutButton.classList.add('d-none');
             }
         }
 
-        // Test connection to API
-        async function testConnection() {
-            const statusEl = document.getElementById('urlStatus');
-            statusEl.innerHTML = '🔄 Testing connection...';
-
-            try {
-                const response = await fetch(`${config.baseUrl}/health`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    statusEl.innerHTML = `✅ Connection successful: <strong>${config.baseUrl}</strong>`;
-                    statusEl.className = 'url-status';
-                } else {
-                    statusEl.innerHTML = `⚠️ Server responded with status ${response.status}: <strong>${config.baseUrl}</strong>`;
-                    statusEl.className = 'url-status error';
-                }
-            } catch (error) {
-                statusEl.innerHTML = `❌ Connection failed: <strong>${config.baseUrl}</strong> - ${error.message}`;
-                statusEl.className = 'url-status error';
-            }
-        }
-
-        // Show section
-        function showSection(sectionName) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-
-            document.getElementById(sectionName).classList.add('active');
-            document.querySelector(`.sidebar-item[onclick="showSection('${sectionName}')"]`).classList.add('active');
-        }
-
-        // Generic API call function with better error handling for CORS and network issues
-        async function makeApiCall(endpoint, method = 'GET', body = null, loadingId, responseId) {
-            const loadingEl = document.getElementById(loadingId);
-            const responseEl = document.getElementById(responseId);
-
-            loadingEl.style.display = 'block';
-            responseEl.textContent = '';
-
+        // Generic fetch function with token handling
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            showLoading();
+            const url = `${BASE_URL}${endpoint}`;
             const headers = {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+            };
+            const token = getToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const options = {
+                method,
+                headers,
             };
 
-            if (config.authToken && endpoint !== '/auth/login' && endpoint !== '/auth/register') {
-                headers['Authorization'] = `Bearer ${config.authToken}`;
+            if (body) {
+                options.body = JSON.stringify(body);
             }
 
             try {
-                const response = await fetch(`${config.baseUrl}${endpoint}`, {
-                    method: method,
-                    headers: headers,
-                    body: body ? JSON.stringify(body) : null,
-                    mode: 'cors' // Explicitly set CORS mode
-                });
-
-                const responseText = await response.text();
-                let responseData;
-
-                try {
-                    responseData = JSON.parse(responseText);
-                } catch {
-                    responseData = responseText;
+                const response = await fetch(url, options);
+                let data;
+                if (response.status === 204) { // No Content
+                    data = { message: "No content available." };
+                } else {
+                    data = await response.json();
                 }
 
-                loadingEl.style.display = 'none';
+                displayResponse(data); // Display raw response from server
 
-                // Enhanced response display
-                const statusColor = response.ok ? '#27ae60' : '#e74c3c';
-                responseEl.innerHTML = `<span style="color: ${statusColor};">Status: ${response.status} ${response.statusText}</span>\n\n${JSON.stringify(responseData, null, 2)}`;
-
-                return responseData;
+                if (!response.ok) {
+                    // Use the message from BaseResponse if available, otherwise fallback
+                    showNotification(`Lỗi: ${data.message || response.statusText}`, 'error');
+                    return null; // Indicate failure
+                }
+                showNotification(`Thành công: ${data.message || "Yêu cầu hoàn tất."}`, 'success');
+                return data; // Return the parsed BaseResponse object
             } catch (error) {
-                loadingEl.style.display = 'none';
-
-                let errorMsg = `Error: ${error.message}`;
-                if (error.message.includes('CORS')) {
-                    errorMsg += '\n\nNote: This might be a CORS issue. Make sure your API server allows cross-origin requests.';
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMsg += '\n\nNote: Unable to connect to server. Please check if the API is running and accessible.';
-                }
-
-                responseEl.innerHTML = `<span style="color: #e74c3c;">${errorMsg}</span>`;
-                console.error('API Error:', error);
+                showNotification(`Có lỗi xảy ra: ${error.message}`, 'error');
+                console.error('Fetch error:', error);
+                displayResponse({ error: error.message });
+                return null; // Indicate failure
+            } finally {
+                hideLoading();
             }
         }
 
-        // Authentication API functions
-        async function login() {
-            const account = document.getElementById('loginAccount').value;
-            const password = document.getElementById('loginPassword').value;
-
-            if (!account || !password) {
-                alert('Please fill in both account and password');
-                return;
-            }
-
-            const response = await makeApiCall('/auth/login', 'POST', { account, password }, 'loginLoading', 'loginResponse');
-            if (response && response.token) {
-                config.authToken = response.token;
-                document.getElementById('authToken').value = response.token;
-                saveConfig();
-                alert('Login successful! Token saved.');
-            }
-        }
-
-        function register() {
-            const name = document.getElementById('registerName').value;
-            const account = document.getElementById('registerAccount').value;
-            const password = document.getElementById('registerPassword').value;
-            const repassword = document.getElementById('registerConfirmPassword').value;
+        // --- Authentication Functions ---
+        registerButton.addEventListener('click', async () => {
+            const name = registerNameInput.value;
+            const account = registerAccountInput.value;
+            const password = registerPasswordInput.value;
+            const repassword = registerRepasswordInput.value;
 
             if (!name || !account || !password || !repassword) {
-                alert('Please fill in all fields');
+                showNotification('Vui lòng điền đầy đủ thông tin đăng ký, bao gồm nhập lại mật khẩu.', 'error');
                 return;
             }
-
             if (password !== repassword) {
-                alert('Passwords do not match');
+                showNotification('Mật khẩu và mật khẩu xác nhận không khớp.', 'error');
                 return;
             }
 
-            makeApiCall('/auth/register', 'POST', { name, account, password, repassword }, 'registerLoading', 'registerResponse');
-        }
+            const responseData = await apiFetch('/auth/register', 'POST', { name, account, password, repassword });
+            if (responseData && responseData.message === "Create Account Success.") {
+                registerNameInput.value = '';
+                registerAccountInput.value = '';
+                registerPasswordInput.value = '';
+                registerRepasswordInput.value = '';
+            }
+        });
 
-        // Note API functions
-        function createNote() {
-            const title = document.getElementById('createTitle').value;
-            const content = document.getElementById('createContent').value;
-
-            if (!title || !content) {
-                alert('Please fill in both title and content');
+        loginButton.addEventListener('click', async () => {
+            const account = loginAccountInput.value;
+            const password = loginPasswordInput.value;
+            if (!account || !password) {
+                showNotification('Vui lòng điền đầy đủ tài khoản và mật khẩu.', 'error');
                 return;
             }
-
-            makeApiCall('/user/notes/create', 'POST', { title, content }, 'createLoading', 'createResponse');
-        }
-
-        function updateNote() {
-            const id = document.getElementById('updateId').value;
-            const title = document.getElementById('updateTitle').value;
-            const content = document.getElementById('updateContent').value;
-
-            if (!id) {
-                alert('Please enter note ID');
-                return;
+            const responseData = await apiFetch('/auth/login', 'POST', { account, password });
+            if (responseData && responseData.data && responseData.data.token) {
+                setToken(responseData.data.token);
+                loginAccountInput.value = '';
+                loginPasswordInput.value = '';
             }
+        });
 
-            const body = {};
-            if (title) body.title = title;
-            if (content) body.content = content;
-
-            makeApiCall(`/user/notes/update/${id}`, 'POST', body, 'updateLoading', 'updateResponse');
-        }
-
-        function deleteNote() {
-            const id = document.getElementById('deleteId').value;
-
-            if (!id) {
-                alert('Please enter note ID');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete this note?')) {
-                makeApiCall(`/user/notes/delete/${id}`, 'POST', null, 'deleteLoading', 'deleteResponse');
-            }
-        }
-
-        function viewNoteDetails() {
-            const id = document.getElementById('viewDetailId').value;
-
-            if (!id) {
-                alert('Please enter note ID');
-                return;
-            }
-
-            makeApiCall(`/user/notes/view/details/${id}`, 'GET', null, 'viewDetailLoading', 'viewDetailResponse');
-        }
-
-        function viewAllNotes() {
-            makeApiCall('/user/notes/view', 'GET', null, 'viewAllLoading', 'viewAllResponse');
-        }
-
-        // Profile API functions
-        function viewProfile() {
-            makeApiCall('/user/profile/view', 'GET', null, 'profileLoading', 'profileResponse');
-        }
-
-        function changeName() {
-            const newName = document.getElementById('newName').value;
-
-            if (!newName) {
-                alert('Please enter new name');
-                return;
-            }
-
-            makeApiCall(`/user/profile/changename/${encodeURIComponent(newName)}`, 'POST', null, 'changeNameLoading', 'changeNameResponse');
-        }
-
-        // Account API functions
-        function changePassword() {
-            const changePass = document.getElementById('newPassword').value;
-            const confirmPass = document.getElementById('confirmPassword').value;
-
-            if (!changePass || !confirmPass) {
-                alert('Please fill in both password fields');
-                return;
-            }
-
-            makeApiCall('/user/account/changepass', 'POST', { changePass, confirmPass }, 'changePassLoading', 'changePassResponse');
-        }
-
-        function deleteAccount() {
-            if (confirm('Are you ABSOLUTELY sure you want to delete your account? This cannot be undone!')) {
-                if (confirm('This is your final warning. Your account and all data will be permanently deleted!')) {
-                    makeApiCall('/user/account/delete', 'GET', null, 'deleteAccountLoading', 'deleteAccountResponse');
+        logoutButton.addEventListener('click', () => {
+            showCustomModal('Bạn có chắc chắn muốn đăng xuất không?', 'confirm', (confirmed) => {
+                if (confirmed) {
+                    removeToken();
+                    showNotification('Bạn đã đăng xuất.', 'info');
                 }
-            }
-        }
+            });
+        });
 
-        // Initialize
-        loadConfig();
+        // --- User Notes Functions ---
+        createNoteButton.addEventListener('click', async () => {
+            const title = createNoteTitleInput.value;
+            const content = createNoteContentInput.value;
+            if (!title || !content) {
+                showNotification('Vui lòng nhập tiêu đề và nội dung ghi chú.', 'error');
+                return;
+            }
+            const responseData = await apiFetch('/user/notes/create', 'POST', { title, content });
+            if (responseData && responseData.message === "Note created.") {
+                createNoteTitleInput.value = '';
+                createNoteContentInput.value = '';
+            }
+        });
+
+        updateNoteButton.addEventListener('click', async () => {
+            const id = updateNoteIdInput.value;
+            const title = updateNoteTitleInput.value;
+            const content = updateNoteContentInput.value;
+            if (!id || (!title && !content)) {
+                showNotification('Vui lòng nhập ID ghi chú và ít nhất tiêu đề hoặc nội dung mới.', 'error');
+                return;
+            }
+            const requestBody = {};
+            if (title) requestBody.title = title;
+            if (content) requestBody.content = content;
+
+            const responseData = await apiFetch(`/user/notes/update/${id}`, 'POST', requestBody);
+            if (responseData && responseData.message === "Update Note Success.") {
+                updateNoteIdInput.value = '';
+                updateNoteTitleInput.value = '';
+                updateNoteContentInput.value = '';
+            }
+        });
+
+        deleteNoteButton.addEventListener('click', () => {
+            const id = deleteNoteIdInput.value;
+            if (!id) {
+                showNotification('Vui lòng nhập ID ghi chú để xóa.', 'error');
+                return;
+            }
+            showCustomModal(`Bạn có chắc chắn muốn xóa ghi chú ID: ${id} không?`, 'confirm', async (confirmed) => {
+                if (confirmed) {
+                    const responseData = await apiFetch(`/user/notes/delete/${id}`, 'POST');
+                    if (responseData && responseData.message === "Delete Note Success.") {
+                        deleteNoteIdInput.value = '';
+                    }
+                }
+            });
+        });
+
+        viewAllNotesButton.addEventListener('click', async () => {
+            const responseData = await apiFetch('/user/notes/view', 'GET');
+            if (responseData && responseData.message === "Note Does Not Exist." && (!responseData.data || responseData.data.length === 0)) {
+                showNotification("Bạn chưa có ghi chú nào hoặc ghi chú không tồn tại.", 'info');
+            }
+        });
+
+        viewDetailsNoteButton.addEventListener('click', async () => {
+            const id = viewDetailsNoteIdInput.value;
+            if (!id) {
+                showNotification('Vui lòng nhập ID ghi chú để xem chi tiết.', 'error');
+                return;
+            }
+            await apiFetch(`/user/notes/view/details/${id}`, 'GET');
+        });
+
+        // --- Admin Functions ---
+        adminShowAllButton.addEventListener('click', async () => {
+            const responseData = await apiFetch('/admin/notes/showall', 'GET');
+            if (responseData && responseData.message === "No notes found." && responseData.data === null) {
+                showNotification("Không tìm thấy ghi chú nào trong hệ thống.", 'info');
+            }
+        });
+
+        // --- Profile Functions ---
+        viewProfileButton.addEventListener('click', async () => {
+            await apiFetch('/user/profile/view', 'GET');
+        });
+
+        changeNameButton.addEventListener('click', async () => {
+            const newName = changeNameInput.value;
+            if (!newName) {
+                showNotification('Vui lòng nhập tên mới.', 'error');
+                return;
+            }
+            const responseData = await apiFetch(`/user/profile/changename/${newName}`, 'POST');
+            if (responseData && responseData.message === "Success") {
+                changeNameInput.value = '';
+            }
+        });
+
+        changePasswordButton.addEventListener('click', async () => {
+            const newPass = changePassNewPasswordInput.value;
+            const confirmPass = changePassConfirmPasswordInput.value;
+
+            if (!newPass || !confirmPass) {
+                showNotification('Vui lòng nhập mật khẩu mới và xác nhận.', 'error');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showNotification('Mật khẩu mới và xác nhận mật khẩu không khớp.', 'error');
+                return;
+            }
+
+            const responseData = await apiFetch('/user/account/changepass', 'POST', { changePass: newPass, confirmPass: confirmPass });
+            if (responseData && responseData.message === "Change Password Success.") {
+                changePassNewPasswordInput.value = '';
+                changePassConfirmPasswordInput.value = '';
+            }
+        });
+
+        deleteAccountButton.addEventListener('click', () => {
+            showCustomModal('Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác!', 'confirm', async (confirmed) => {
+                if (confirmed) {
+                    const responseData = await apiFetch('/user/account/delete', 'GET');
+                    if (responseData && responseData.message && responseData.message.includes("Account deleted successfully.")) {
+                        removeToken();
+                    }
+                }
+            });
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserStatus();
+            // Initialize Bootstrap tabs
+            var triggerTabList = document.querySelectorAll('#mainTab button')
+            triggerTabList.forEach(function (triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+
+                triggerEl.addEventListener('click', function (event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
+            })
+            // Activate the first tab by default
+            document.getElementById('auth-tab').click();
+
+            // Set initial state for notification bar to be completely hidden
+            notificationBar.classList.add('d-none');
+        });
     </script>
 </body>
 

@@ -13,7 +13,7 @@ public interface NoteService {
 
     public void save(Note note);
 
-    public void deleteNote(Long id);
+    public String deleteNote(Long id);
 
     public List<Note> findByUser(User user);
 

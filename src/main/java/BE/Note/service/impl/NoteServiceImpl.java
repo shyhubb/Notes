@@ -3,6 +3,7 @@ package BE.Note.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import BE.Note.entities.Note;
@@ -42,8 +43,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public void deleteNote(Long id) {
-        noteRepository.deleteById(id);
+    public String deleteNote(Long id) {
+        Optional<Note> nOptional = noteRepository.findById(id);
+        if (nOptional.isPresent()) {
+            noteRepository.deleteById(id);
+            return "Delete Notes Success.";
+        }
+        return "You Do Not Have Permission To Access This Note Or The Note Exists";
     }
 
     @Override
